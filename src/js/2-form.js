@@ -1,61 +1,49 @@
-const setStoredData = (key, data) => {
-    try {
-      localStorage.setItem(key, JSON.stringify(data));
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  
-  const getStoredData = key => {
-    try {
-      const dataFromLS = localStorage.getItem(key);
-      return dataFromLS ? JSON.parse(dataFromLS) : null;
-    } catch (err) {
-      console.log(err);
-      return null;
-    }
-  };
-  
-  const feedbackForm = document.querySelector('.feedback-form');
-  const feedbackformdatakey = 'feedback-form-session-data';
-  
-  const formData = {
-    email: '',
-    message: '',
-  };
-  
-  const savedData = getStoredData(feedbackformdatakey);
+const STORAGE_KEY = 'feedback-form-state';
 
-  if (savedData) {
-    formData.email = savedData.email || '';
-    formData.message = savedData.message || '';
-    feedbackForm.elements.email.value = formData.email;
-    feedbackForm.elements.message.value = formData.message;
+const formData = {
+  email: '',
+  message: '',
+};
+
+const form = document.querySelector('.feedback-form');
+const emailInput = form.querySelector('input[name="email"]');
+const messageInput = form.querySelector('textarea[name="message"]');
+
+// При завантаженні сторінки — відновлюємо дані зі сховища
+const savedData = localStorage.getItem(STORAGE_KEY);
+
+if (savedData) {
+  const parsedData = JSON.parse(savedData);
+  formData.email = parsedData.email ?? '';
+  formData.message = parsedData.message ?? '';
+  emailInput.value = formData.email;
+  messageInput.value = formData.message;
+}
+
+// Слухаємо input через делегування
+form.addEventListener('input', event => {
+  const { name, value } = event.target;
+
+  if (name === 'email' || name === 'message') {
+    formData[name] = value.trim();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+  }
+});
+
+// Слухаємо submit
+form.addEventListener('submit', event => {
+  event.preventDefault();
+
+  if (!formData.email || !formData.message) {
+    alert('Fill please all fields');
+    return;
   }
 
-  feedbackForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-  
-    const email = formData.email.trim();
-    const message = formData.message.trim();
-  
-    if (!email || !message) {
-      alert('Both email and message are required. Please complete all fields.');
-      return;
-    }
-  
-    console.log('Submitted formData:', formData);
-  
-    // Clear stored data and reset form
-    localStorage.removeItem(feedbackformdatakey);
-    feedbackForm.reset();
-    
-    // Clear formData fields
-    formData.email = '';
-    formData.message = '';
-  });
+  console.log(formData);
 
-  feedbackForm.addEventListener('input', evt => {
-    formData[evt.target.name] = evt.target.value;
-    setStoredData(feedbackformdatakey, formData);
-  });
+  // Очищаємо все
+  localStorage.removeItem(STORAGE_KEY);
+  formData.email = '';
+  formData.message = '';
+  form.reset();
+});

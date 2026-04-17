@@ -9,11 +9,12 @@
 @import url('./base.css');
 @import url('./container.css');
 @import url('./animations.css');
-@import url('simplelightbox/dist/simple-lightbox.min.css');
-@import url('./gallery.css');
-@import url('./feedback.css');
 
 /* Sections style */
 @import url('./header.css');
+@import url('./vite-promo.css');
+@import url('./badges.css');
 @import url('./back-link.css');
 @import url('./footer.css');
+@import url('./gallery.css');
+@import url('./form.css');
